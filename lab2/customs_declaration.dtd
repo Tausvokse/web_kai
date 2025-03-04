@@ -1,0 +1,10 @@
+<!ELEMENT customs_declaration (person+)>
+<!ELEMENT person (first_name, last_name, middle_name, residence_country, destination_country, money_amount, special_luggage)>
+<!ELEMENT first_name (#PCDATA)>
+<!ELEMENT last_name (#PCDATA)>
+<!ELEMENT middle_name (#PCDATA)>
+<!ELEMENT residence_country (#PCDATA)>
+<!ELEMENT destination_country (#PCDATA)>
+<!ELEMENT money_amount (#PCDATA)>
+<!ATTLIST money_amount currency CDATA #REQUIRED>
+<!ELEMENT special_luggage (#PCDATA)>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>XPath-запити до митної декларації</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f0f0; }
+        h1 { color: #333; }
+        pre { background-color: #fff; padding: 10px; border: 1px solid #ccc; margin: 10px 0; }
+        select, button { font-size: 16px; padding: 5px; margin: 10px 0; }
+        #output { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>XPath-запити до митної декларації</h1>
+    <label for="xpathSelect">Оберіть запит:</label>
+    <select id="xpathSelect">
+        <option value="/customs_declaration/person">Всі особи</option>
+        <option value="/customs_declaration/person/last_name">Прізвища всіх осіб</option>
+        <option value="/customs_declaration/person[destination_country='Польща']">Особи, що їдуть до Польщі</option>
+        <option value="/customs_declaration/person/money_amount">Сума грошей всіх осіб</option>
+        <option value="/customs_declaration/person/money_amount/@currency">Валюта грошей</option>
+        <option value="/customs_declaration/person[residence_country='Україна']/special_luggage">Спеціальний багаж українців</option>
+    </select>
+    <button onclick="executeXPath()">Виконати запит</button>
+    <div id="output"></div>
+
+    <script>
+        let xmlDoc;
+
+        // Асинхронне завантаження XML
+        async function loadXML() {
+            try {
+                const response = await fetch('customs_declaration.xml');
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const data = await response.text();
+                const parser = new DOMParser();
+                xmlDoc = parser.parseFromString(data, "application/xml");
+
+                // Перевірка на помилки парсингу XML
+                const parserError = xmlDoc.querySelector("parsererror");
+                if (parserError) {
+                    throw new Error("Помилка парсингу XML: " + parserError.textContent);
+                }
+                console.log("XML успішно завантажено!");
+            } catch (error) {
+                console.error('Помилка завантаження XML:', error);
+                document.getElementById("output").innerHTML = `<pre>Помилка: ${error.message}</pre>`;
+            }
+        }
+
+        // Завантажуємо XML при запуску сторінки
+        loadXML();
+
+        // Виконання XPath-запиту
+        function executeXPath() {
+            if (!xmlDoc) {
+                document.getElementById("output").innerHTML = "<pre>XML ще не завантажено. Зачекайте...</pre>";
+                return;
+            }
+
+            const xpath = document.getElementById("xpathSelect").value;
+            const outputDiv = document.getElementById("output");
+            outputDiv.innerHTML = "";
+
+            try {
+                // Виклик evaluate на xmlDoc, а не на document
+                const nodes = xmlDoc.evaluate(xpath, xmlDoc, null, XPathResult.ANY_TYPE, null);
+                let result = "";
+                let node = nodes.iterateNext();
+
+                while (node) {
+                    result += node.nodeType === 2 ? 
+                        `${node.name}=${node.value}\n` : 
+                        `${node.textContent.trim()}\n`;
+                    node = nodes.iterateNext();
+                }
+
+                if (result === "") {
+                    result = "Нічого не знайдено для цього запиту.";
+                }
+
+                const pre = document.createElement("pre");
+                pre.textContent = result;
+                outputDiv.appendChild(pre);
+            } catch (e) {
+                outputDiv.innerHTML = `<pre>Помилка у XPath-запиті: ${e.message}</pre>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+customs_declaration {
+    display: block;
+    background-color: #f0f0f0;
+    width: 100%;
+    display: block;
+}
+person {
+    display: block;
+    margin: 20px;
+    padding: 10px;
+    background-color: #e0e0e0;
+}
+first_name, last_name, middle_name, residence_country, destination_country, money_amount, special_luggage {
+    display: block;
+    color: #333;
+    font-size: 16pt;
+    margin-left: 20px;
+}
+first_name {
+    display: block;
+    color: #ff0000;
+}
+last_name {
+    display: block;
+    color: #0000ff;
+}
+money_amount {
+    display: block;
+    color: #008000;
+}

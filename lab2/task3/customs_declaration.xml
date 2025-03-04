@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE customs_declaration SYSTEM "customs_declaration.dtd">
+<?xml-stylesheet type="text/xsl" href="customs_declaration.xsl"?>
+<customs_declaration>
+    <person>
+        <first_name>Олександр</first_name>
+        <last_name>Петров</last_name>
+        <middle_name>Іванович</middle_name>
+        <residence_country>Україна</residence_country>
+        <destination_country>Польща</destination_country>
+        <money_amount currency="UAH">5000</money_amount>
+        <special_luggage>Електроніка</special_luggage>
+    </person>
+    <person>
+        <first_name>Марія</first_name>
+        <last_name>Коваленко</last_name>
+        <middle_name>Олегівна</middle_name>
+        <residence_country>Україна</residence_country>
+        <destination_country>Німеччина</destination_country>
+        <money_amount currency="EUR">200</money_amount>
+        <special_luggage>Медичні препарати</special_luggage>
+    </person>
+</customs_declaration>
