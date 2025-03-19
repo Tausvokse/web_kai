@@ -1,0 +1,35 @@
+body {
+    background-color: aliceblue;
+}
+
+.center {
+    text-align: center;
+    margin: auto;
+}
+
+#keyboard {
+    text-align: center;
+    margin: auto;
+    border: 2px solid;
+}
+
+#b1 { background-color: #ff9999; }
+#b2 { background-color: #99ff99; }
+#b3 { background-color: #9999ff; }
+#b4 { background-color: #ffff99; }
+#b5 { background-color: #ff99ff; }
+#b6 { background-color: #99ffff; }
+#b7 { background-color: #ffcc99; }
+#b8 { background-color: #cc99ff; }
+#b9 { background-color: #99ccff; }
+#b0 { background-color: #cccccc; }
+#bs { background-color: #66ff66; }
+
+#d1 { background-color: #ffe6e6; }
+#d2 { background-color: #e6ffe6; }
+#d3 { background-color: #e6e6ff; }
+#d4 { background-color: #ffffe6; }
+#plus { background-color: #ccffcc; }
+#minus { background-color: #ccccff; }
+#multiply { background-color: #ffcccc; }
+#award { background-color: #ffd700; }

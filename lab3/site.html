@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Перевірка усного рахунку</title>
+    <link rel="stylesheet" href="main.css" />
+</head>
+
+<body>
+    <h1 class="center">Математичний тест</h1>
+    <hr />
+    <form name="test">
+        <table class="center">
+            <tr>
+                <td><input id='d1' type=button value="0-10" onClick="max_value=10"></td>
+                <td><input id='d2' type=button value="0-20" onClick="max_value=20"></td>
+                <td><input id='d3' type=button value="0-38" onClick="max_value=38"></td>
+                <td><input id='d4' type=button value="0-100" onClick="max_value=100"></td>
+                <td><input id="plus" type=button value="+" onClick='set_sign("+")'></td>
+                <td><input id="minus" type=button value="-" onClick='set_sign("-")'></td>
+                <td><input id="multiply" type=button value="*" onClick='set_sign("*")'></td>
+                <td><input id="auto" type="checkbox" onchange="toggleAutoMode(this)"> Авторежим</td>
+            </tr>
+        </table>
+        <hr>
+        <table class="center">
+            <tr>
+                <td><input id="op1" size="3" maxlength="3"></td>
+                <td><input id="s_sign" size="1" maxlength="1"></td>
+                <td><input id="op2" size="3" maxlength="3"></td>
+                <td>=</td>
+                <td><input id="result" size="4" maxlength="4"></td>
+                <td><input id="award" type=button value="?" onClick="main_calc()">
+                <td><input id="r0" value="???">
+            </tr>
+        </table>
+        <hr />
+        <table id="keyboard">
+            <tr>
+                <td><input id="b1" type=button value="1" onClick='input_sign("1")'></td>
+                <td><input id="b2" type=button value="2" onClick='input_sign("2")'></td>
+                <td><input id="b3" type=button value="3" onClick='input_sign("3")'></td>
+            </tr>
+            <tr>
+                <td><input id="b4" type=button value="4" onClick='input_sign("4")'></td>
+                <td><input id="b5" type=button value="5" onClick='input_sign("5")'></td>
+                <td><input id="b6" type=button value="6" onClick='input_sign("6")'></td>
+            </tr>
+            <tr>
+                <td><input id="b7" type=button value="7" onClick='input_sign("7")'></td>
+                <td><input id="b8" type=button value="8" onClick='input_sign("8")'></td>
+                <td><input id="b9" type=button value="9" onClick='input_sign("9")'></td>
+            </tr>
+            <tr>
+                <td><input id="b0" type=button value="0" onClick='input_sign("0")'></td>
+                <td colspan="2"><input id="bs" type="button" value="OK" onClick='input_sign("10")'></td>
+            </tr>
+        </table>
+    </form>
+    <hr />
+
+    <script language="JavaScript">
+        var max_value, operand1 = 0;
+        var operand2 = 0; var result = 0;
+        var flag = 0; var sign = "+";
+        var input = "";
+        var autoMode = false;
+        var autoInterval;
+
+        function set_sign(x) {
+            if (x == "+") { flag = 0; sign = "+"; }
+            if (x == "-") { flag = 1; sign = "-"; }
+            if (x == "*") { flag = 2; sign = "*"; }
+            return true;
+        }
+
+        function f_operand() {
+            operand1 = Math.floor(Math.random() * max_value);
+            return parseInt(operand1);
+        }
+
+        function s_operand() {
+            if (flag == 0) {
+                operand2 = Math.floor(Math.random() * (max_value - operand1));
+            }
+            if (flag == 1) {
+                operand2 = Math.floor(Math.random() * operand1);
+            }
+            if (flag == 2) {
+                operand2 = Math.floor(Math.random() * (max_value/operand1));
+            }
+			else {
+                operand2 = Math.floor(Math.random() * (max_value - operand1));
+            }
+            return parseInt(operand2);
+        }
+
+        function input_sign(x) {
+            if (x == 10) {
+                if (flag == 0) {
+                    if (operand1 + operand2 == parseInt(input)) {
+                        window.document.forms["test"].r0.value = "Вірно!";
+                    } else {
+                        window.document.forms["test"].r0.value = "Спробуй ще!";
+                        window.document.forms["test"].result.value = ""; input = "";
+                    }
+                }
+                else if (flag == 1) {
+                    if (operand1 - operand2 == parseInt(input)) {
+                        window.document.forms["test"].r0.value = "Вірно!";
+                    } else {
+                        window.document.forms["test"].r0.value = "Спробуй ще!";
+                        window.document.forms["test"].result.value = ""; input = "";
+                    }
+                }
+                else if (flag == 2) {
+                    if (operand1 * operand2 == parseInt(input)) {
+                        window.document.forms["test"].r0.value = "Вірно!";
+                    } else {
+                        window.document.forms["test"].r0.value = "Спробуй ще!";
+                        window.document.forms["test"].result.value = ""; input = "";
+                    }
+                }
+                return true;
+            }
+            input += x;
+            window.document.forms["test"].result.value = input;
+            return true;
+        }
+
+        function main_calc() {
+            if (!max_value) max_value = 10; // Встановлюємо значення за замовчуванням
+            operand1 = f_operand();
+            window.document.forms["test"]["op1"].value = operand1;
+            operand2 = s_operand();
+            window.document.forms["test"]["op2"].value = operand2;
+            window.document.forms["test"]["s_sign"].value = sign;
+            input = ""; 
+            window.document.forms['test'].result.value = "";
+            window.document.forms["test"]["r0"].value = " ???";
+            return true;
+        }
+
+        function toggleAutoMode(checkbox) {
+            autoMode = checkbox.checked;
+            if (autoMode) {
+                main_calc(); // Генеруємо перший приклад одразу
+                autoInterval = setInterval(main_calc, 5000); // Оновлення кожні 5 секунд
+            } else {
+                clearInterval(autoInterval);
+            }
+        }
+    </script>
+</body>
+</html>
