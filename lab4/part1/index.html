@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Лабораторна робота 1-4: Частина 1 - Форми</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: inline-block;
+            width: 200px;
+            vertical-align: top;
+        }
+        input, select, textarea {
+            width: 300px;
+            padding: 5px;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Лабораторна робота 1-4: Частина 1</h1>
+    <h2>Митна декларація (Варіант 10)</h2>
+    
+    <!-- HTML форма -->
+    <form action="process_declaration.php" method="post" id="customsForm">
+        <fieldset>
+            <legend>Особисті дані</legend>
+            <div class="form-group">
+                <label for="surname">Прізвище:</label>
+                <input type="text" id="surname" name="surname" required>
+            </div>
+            <div class="form-group">
+                <label for="name">Ім'я:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="patronymic">По батькові:</label>
+                <input type="text" id="patronymic" name="patronymic" required>
+            </div>
+            <div class="form-group">
+                <label for="nativeLanguage">Рідна мова:</label>
+                <select id="nativeLanguage" name="nativeLanguage" required>
+                    <option value="">Виберіть мову</option>
+                    <option value="ukrainian">Українська</option>
+                    <option value="english">Англійська</option>
+                    <option value="russian">Російська</option>
+                    <option value="other">Інша</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Деталі поїздки</legend>
+            <div class="form-group">
+                <label for="visitPurpose">Мета візиту:</label>
+                <select id="visitPurpose" name="visitPurpose" required>
+                    <option value="">Виберіть мету</option>
+                    <option value="tourism">Туризм</option>
+                    <option value="business">Бізнес</option>
+                    <option value="study">Навчання</option>
+                    <option value="transit">Транзит</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="cashAmount">Сума готівки:</label>
+                <input type="number" id="cashAmount" name="cashAmount" min="0" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="luggageInfo">Відомості про багаж:</label>
+                <textarea id="luggageInfo" name="luggageInfo" rows="4" required></textarea>
+            </div>
+        </fieldset>
+
+        <div class="form-group">
+            <input type="submit" value="Надіслати декларацію">
+            <input type="reset" value="Очистити">
+        </div>
+    </form>
+
+    <!-- XForms версія -->
+    <h3>XForms версія</h3>
+    <pre>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xform="http://www.w3.org/2002/xforms">
+<head>
+    <xform:model>
+        <xform:instance>
+            <declaration>
+                <surname/>
+                <name/>
+                <patronymic/>
+                <nativeLanguage/>
+                <visitPurpose/>
+                <cashAmount/>
+                <luggageInfo/>
+            </declaration>
+        </xform:instance>
+        <xform:submission id="form1" method="post" action="process_declaration.php"/>
+    </xform:model>
+</head>
+<body>
+    <xform:input ref="surname">
+        <xform:label>Прізвище:</xform:label>
+    </xform:input>
+    <xform:input ref="name">
+        <xform:label>Ім'я:</xform:label>
+    </xform:input>
+    <xform:input ref="patronymic">
+        <xform:label>По батькові:</xform:label>
+    </xform:input>
+    <xform:select1 ref="nativeLanguage">
+        <xform:label>Рідна мова:</xform:label>
+        <xform:item>
+            <xform:label>Українська</xform:label>
+            <xform:value>ukrainian</xform:value>
+        </xform:item>
+        <xform:item>
+            <xform:label>Англійська</xform:label>
+            <xform:value>english</xform:value>
+        </xform:item>
+        <xform:item>
+            <xform:label>Російська</xform:label>
+            <xform:value>russian</xform:value>
+        </xform:item>
+        <xform:item>
+            <xform:label>Інша</xform:label>
+            <xform:value>other</xform:value>
+        </xform:item>
+    </xform:select1>
+    <xform:select1 ref="visitPurpose">
+        <xform:label>Мета візиту:</xform:label>
+        <xform:item>
+            <xform:label>Туризм</xform:label>
+            <xform:value>tourism</xform:value>
+        </xform:item>
+        <xform:item>
+            <xform:label>Бізнес</xform:label>
+            <xform:value>business</xform:value>
+        </xform:item>
+        <xform:item>
+            <xform:label>Навчання</xform:label>
+            <xform:value>study</xform:value>
+        </xform:item>
+        <xform:item>
+            <xform:label>Транзит</xform:label>
+            <xform:value>transit</xform:value>
+        </xform:item>
+    </xform:select1>
+    <xform:input ref="cashAmount" type="number">
+        <xform:label>Сума готівки:</xform:label>
+    </xform:input>
+    <xform:textarea ref="luggageInfo">
+        <xform:label>Відомості про багаж:</xform:label>
+    </xform:textarea>
+    <xform:submit submission="form1">
+        <xform:label>Надіслати декларацію</xform:label>
+    </xform:submit>
+</body>
+</html>
+    </pre>
+</body>
+</html>

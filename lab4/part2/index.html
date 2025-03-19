@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Лабораторна робота 1-4: Частина 2 - Форми і JavaScript</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: inline-block;
+            width: 200px;
+            vertical-align: top;
+        }
+        input, select, textarea {
+            width: 300px;
+            padding: 5px;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+        }
+        .edit-form {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px dashed #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Лабораторна робота 1-4: Частина 2</h1>
+    <h2>Митна декларація з обробкою JavaScript (Варіант 10)</h2>
+    
+    <form id="customsForm" onsubmit="processForm(event)">
+        <fieldset>
+            <legend>Особисті дані</legend>
+            <div class="form-group">
+                <label for="surname">Прізвище:</label>
+                <input type="text" id="surname" name="surname" required>
+            </div>
+            <div class="form-group">
+                <label for="name">Ім'я:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="patronymic">По батькові:</label>
+                <input type="text" id="patronymic" name="patronymic" required>
+            </div>
+            <div class="form-group">
+                <label for="nativeLanguage">Рідна мова:</label>
+                <select id="nativeLanguage" name="nativeLanguage" required>
+                    <option value="">Виберіть мову</option>
+                    <option value="ukrainian">Українська</option>
+                    <option value="english">Англійська</option>
+                    <option value="russian">Російська</option>
+                    <option value="other">Інша</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Деталі поїздки</legend>
+            <div class="form-group">
+                <label for="visitPurpose">Мета візиту:</label>
+                <select id="visitPurpose" name="visitPurpose" required>
+                    <option value="">Виберіть мету</option>
+                    <option value="tourism">Туризм</option>
+                    <option value="business">Бізнес</option>
+                    <option value="study">Навчання</option>
+                    <option value="transit">Транзит</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="cashAmount">Сума готівки:</label>
+                <input type="number" id="cashAmount" name="cashAmount" min="0" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="luggageInfo">Відомості про багаж:</label>
+                <textarea id="luggageInfo" name="luggageInfo" rows="4" required></textarea>
+            </div>
+        </fieldset>
+
+        <div class="form-group">
+            <input type="submit" value="Надіслати декларацію">
+            <input type="reset" value="Очистити">
+        </div>
+    </form>
+
+    <div id="output"></div>
+    <div>
+        <button onclick="saveAsXML()">Зберегти як XML</button>
+        <button onclick="saveAsJSON()">Зберегти як JSON</button>
+        <button onclick="loadData()">Показати збережені дані</button>
+        <button onclick="deleteData()">Видалити дані</button>
+        <input type="file" id="fileInput" accept=".json" onchange="loadFromFile(event)">
+    </div>
+
+    <div id="editFormContainer" class="edit-form" style="display: none;">
+        <h3>Редагування декларації</h3>
+        <form id="editForm" onsubmit="updateDeclaration(event)">
+            <input type="hidden" id="editIndex">
+            <div class="form-group">
+                <label for="editSurname">Прізвище:</label>
+                <input type="text" id="editSurname" required>
+            </div>
+            <div class="form-group">
+                <label for="editName">Ім'я:</label>
+                <input type="text" id="editName" required>
+            </div>
+            <div class="form-group">
+                <label for="editPatronymic">По батькові:</label>
+                <input type="text" id="editPatronymic" required>
+            </div>
+            <div class="form-group">
+                <label for="editNativeLanguage">Рідна мова:</label>
+                <select id="editNativeLanguage" required>
+                    <option value="ukrainian">Українська</option>
+                    <option value="english">Англійська</option>
+                    <option value="russian">Російська</option>
+                    <option value="other">Інша</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editVisitPurpose">Мета візиту:</label>
+                <select id="editVisitPurpose" required>
+                    <option value="tourism">Туризм</option>
+                    <option value="business">Бізнес</option>
+                    <option value="study">Навчання</option>
+                    <option value="transit">Транзит</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editCashAmount">Сума готівки:</label>
+                <input type="number" id="editCashAmount" min="0" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="editLuggageInfo">Відомості про багаж:</label>
+                <textarea id="editLuggageInfo" rows="4" required></textarea>
+            </div>
+            <input type="submit" value="Оновити">
+            <button type="button" onclick="cancelEdit()">Скасувати</button>
+        </form>
+    </div>
+
+    <script>
+        let declarations = JSON.parse(localStorage.getItem('declarations')) || [];
+
+        function processForm(event) {
+            event.preventDefault();
+            
+            const formData = {
+                surname: document.getElementById('surname').value.trim(),
+                name: document.getElementById('name').value.trim(),
+                patronymic: document.getElementById('patronymic').value.trim(),
+                nativeLanguage: document.getElementById('nativeLanguage').value,
+                visitPurpose: document.getElementById('visitPurpose').value,
+                cashAmount: parseFloat(document.getElementById('cashAmount').value),
+                luggageInfo: document.getElementById('luggageInfo').value.trim(),
+                timestamp: new Date().toISOString()
+            };
+
+            if (validateForm(formData)) {
+                declarations.push(formData);
+                localStorage.setItem('declarations', JSON.stringify(declarations));
+                displayOutput('Декларацію успішно збережено!');
+                document.getElementById('customsForm').reset();
+            }
+        }
+
+        function saveAsXML() {
+            if (declarations.length === 0) {
+                alert('Немає даних для збереження');
+                return;
+            }
+            
+            let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<declarations>\n';
+            declarations.forEach((dec, index) => {
+                xml += `  <declaration id="${index}">\n`;
+                xml += `    <surname>${escapeXML(dec.surname)}</surname>\n`;
+                xml += `    <name>${escapeXML(dec.name)}</name>\n`;
+                xml += `    <patronymic>${escapeXML(dec.patronymic)}</patronymic>\n`;
+                xml += `    <nativeLanguage>${dec.nativeLanguage}</nativeLanguage>\n`;
+                xml += `    <visitPurpose>${dec.visitPurpose}</visitPurpose>\n`;
+                xml += `    <cashAmount>${dec.cashAmount}</cashAmount>\n`;
+                xml += `    <luggageInfo>${escapeXML(dec.luggageInfo)}</luggageInfo>\n`;
+                xml += `    <timestamp>${dec.timestamp}</timestamp>\n`;
+                xml += '  </declaration>\n';
+            });
+            xml += '</declarations>';
+            download('customs_declarations.xml', xml);
+            displayOutput('XML файл створено!');
+        }
+
+        function saveAsJSON() {
+            if (declarations.length === 0) {
+                alert('Немає даних для збереження');
+                return;
+            }
+            
+            const json = JSON.stringify(declarations, null, 2);
+            download('customs_declarations.json', json);
+            displayOutput('JSON файл створено!');
+        }
+
+        function loadData() {
+            if (declarations.length === 0) {
+                displayOutput('Немає збережених декларацій');
+                return;
+            }
+            
+            let output = '<h3>Збережені декларації:</h3><ul>';
+            declarations.forEach((dec, index) => {
+                output += `<li>Декларація #${index + 1}: ${escapeHTML(dec.surname)} ${escapeHTML(dec.name)} 
+                    ${escapeHTML(dec.patronymic)} (Мета: ${dec.visitPurpose}, Час: ${dec.timestamp})
+                    <button onclick="editDeclaration(${index})">Редагувати</button></li>`;
+            });
+            output += '</ul>';
+            displayOutput(output);
+        }
+
+        function deleteData() {
+            if (confirm('Ви впевнені, що хочете видалити всі дані?')) {
+                declarations = [];
+                localStorage.removeItem('declarations');
+                displayOutput('Усі дані видалено!');
+                document.getElementById('editFormContainer').style.display = 'none';
+            }
+        }
+
+        function editDeclaration(index) {
+            const dec = declarations[index];
+            document.getElementById('editIndex').value = index;
+            document.getElementById('editSurname').value = dec.surname;
+            document.getElementById('editName').value = dec.name;
+            document.getElementById('editPatronymic').value = dec.patronymic;
+            document.getElementById('editNativeLanguage').value = dec.nativeLanguage;
+            document.getElementById('editVisitPurpose').value = dec.visitPurpose;
+            document.getElementById('editCashAmount').value = dec.cashAmount;
+            document.getElementById('editLuggageInfo').value = dec.luggageInfo;
+            document.getElementById('editFormContainer').style.display = 'block';
+        }
+
+        function updateDeclaration(event) {
+            event.preventDefault();
+            const index = parseInt(document.getElementById('editIndex').value);
+            const updatedData = {
+                surname: document.getElementById('editSurname').value.trim(),
+                name: document.getElementById('editName').value.trim(),
+                patronymic: document.getElementById('editPatronymic').value.trim(),
+                nativeLanguage: document.getElementById('editNativeLanguage').value,
+                visitPurpose: document.getElementById('editVisitPurpose').value,
+                cashAmount: parseFloat(document.getElementById('editCashAmount').value),
+                luggageInfo: document.getElementById('editLuggageInfo').value.trim(),
+                timestamp: declarations[index].timestamp // Зберігаємо оригінальний час створення
+            };
+
+            if (validateForm(updatedData)) {
+                declarations[index] = updatedData;
+                localStorage.setItem('declarations', JSON.stringify(declarations));
+                displayOutput('Декларацію успішно оновлено!');
+                document.getElementById('editFormContainer').style.display = 'none';
+                loadData();
+            }
+        }
+
+        function cancelEdit() {
+            document.getElementById('editFormContainer').style.display = 'none';
+        }
+
+        function loadFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        declarations = importedData;
+                        localStorage.setItem('declarations', JSON.stringify(declarations));
+                        displayOutput('Дані успішно завантажено з файлу!');
+                        loadData();
+                    } else {
+                        alert('Невірний формат файлу. Очікується масив декларацій.');
+                    }
+                } catch (error) {
+                    alert('Помилка при завантаженні файлу: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function validateForm(data) {
+            if (!data.surname || !data.name || !data.patronymic) {
+                alert('Будь ласка, заповніть усі особисті дані');
+                return false;
+            }
+            if (!data.nativeLanguage || !data.visitPurpose) {
+                alert('Будь ласка, виберіть мову та мету візиту');
+                return false;
+            }
+            if (isNaN(data.cashAmount) || data.cashAmount < 0) {
+                alert('Введіть коректну суму готівки');
+                return false;
+            }
+            if (!data.luggageInfo) {
+                alert('Введіть відомості про багаж');
+                return false;
+            }
+            return true;
+        }
+
+        function download(filename, text) {
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        function displayOutput(message) {
+            document.getElementById('output').innerHTML = message;
+        }
+
+        function escapeXML(str) {
+            return str.replace(/&/g, '&amp;')
+                     .replace(/</g, '&lt;')
+                     .replace(/>/g, '&gt;')
+                     .replace(/"/g, '&quot;')
+                     .replace(/'/g, '&apos;');
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/&/g, '&amp;')
+                     .replace(/</g, '&lt;')
+                     .replace(/>/g, '&gt;')
+                     .replace(/"/g, '&quot;')
+                     .replace(/'/g, '&apos;');
+        }
+    </script>
+</body>
+</html>
