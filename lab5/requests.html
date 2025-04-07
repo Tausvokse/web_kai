@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Управління деклараціями (REST API)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        #declarationsList {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .declaration-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .declaration-item:last-child {
+            border-bottom: none;
+        }
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Управління деклараціями</h1>
+    
+    <!-- Кнопка для отримання всіх декларацій -->
+    <h2>Операції з деклараціями</h2>
+    <button id="fetchDeclarations">Отримати всі декларації (GET)</button>
+    
+    <!-- Список декларацій -->
+    <div id="declarationsList"></div>
+
+    <script>
+        // Функція для відображення декларацій
+        function displayDeclarations(declarations) {
+            const declarationsList = document.getElementById('declarationsList');
+            declarationsList.innerHTML = ''; // Очищаємо список
+
+            if (declarations.length === 0) {
+                declarationsList.innerHTML = '<p>Декларацій не знайдено.</p>';
+                return;
+            }
+
+            declarations.forEach(declaration => {
+                const declarationDiv = document.createElement('div');
+                declarationDiv.className = 'declaration-item';
+                declarationDiv.innerHTML = `
+                    <p><strong>ID:</strong> ${declaration.id}</p>
+                    <p><strong>Прізвище:</strong> ${declaration.surname}</p>
+                    <p><strong>Ім'я:</strong> ${declaration.name}</p>
+                    <p><strong>По батькові:</strong> ${declaration.patronymic}</p>
+                    <p><strong>Рідна мова:</strong> ${declaration.nativeLanguage}</p>
+                    <p><strong>Мета візиту:</strong> ${declaration.visitPurpose}</p>
+                    <p><strong>Сума готівки:</strong> ${declaration.cashAmount}</p>
+                    <p><strong>Відомості про багаж:</strong> ${declaration.luggageInfo}</p>
+                    <button onclick="updateDeclaration(${declaration.id})">Оновити (PUT)</button>
+                    <button onclick="deleteDeclaration(${declaration.id})">Видалити (DELETE)</button>
+                `;
+                declarationsList.appendChild(declarationDiv);
+            });
+        }
+
+        // Обробник для отримання всіх декларацій (GET)
+        document.getElementById('fetchDeclarations').addEventListener('click', async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/declarations', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const declarations = await response.json();
+                displayDeclarations(declarations);
+            } catch (error) {
+                console.error('Деталі помилки:', error);
+                alert(`Сталася помилка при отриманні декларацій: ${error.message}`);
+            }
+        });
+
+        // Функція для оновлення декларації (PUT)
+        window.updateDeclaration = async (id) => {
+            const newSurname = prompt('Введіть нове прізвище:');
+            if (!newSurname) return;
+
+            const updatedData = { surname: newSurname }; // Оновлюємо лише прізвище для прикладу
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/declaration/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                alert('Декларацію успішно оновлено!');
+                document.getElementById('fetchDeclarations').click(); // Оновлюємо список
+            } catch (error) {
+                console.error('Деталі помилки:', error);
+                alert(`Сталася помилка при оновленні декларації: ${error.message}`);
+            }
+        };
+
+        // Функція для видалення декларації (DELETE)
+        window.deleteDeclaration = async (id) => {
+            if (!confirm('Ви впевнені, що хочете видалити цю декларацію?')) return;
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/declaration/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                alert('Декларацію успішно видалено!');
+                document.getElementById('fetchDeclarations').click(); // Оновлюємо список
+            } catch (error) {
+                console.error('Деталі помилки:', error);
+                alert(`Сталася помилка при видаленні декларації: ${error.message}`);
+            }
+        };
+    </script>
+</body>
+</html>
