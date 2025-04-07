@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Лабораторна робота 2-1: Митна декларація</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: inline-block;
+            width: 200px;
+            vertical-align: top;
+        }
+        input, select, textarea {
+            width: 300px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Митна декларація</h1>
+    
+    <!-- Форма для введення даних -->
+    <form id="customsForm">
+        <fieldset>
+            <legend>Особисті дані</legend>
+            <div class="form-group">
+                <label for="surname">Прізвище:</label>
+                <input type="text" id="surname" name="surname" required>
+            </div>
+            <div class="form-group">
+                <label for="name">Ім'я:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="patronymic">По батькові:</label>
+                <input type="text" id="patronymic" name="patronymic" required>
+            </div>
+            <div class="form-group">
+                <label for="nativeLanguage">Рідна мова:</label>
+                <select id="nativeLanguage" name="nativeLanguage" required>
+                    <option value="">Виберіть мову</option>
+                    <option value="ukrainian">Українська</option>
+                    <option value="english">Англійська</option>
+                    <option value="russian">Російська</option>
+                    <option value="other">Інша</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Деталі поїздки</legend>
+            <div class="form-group">
+                <label for="visitPurpose">Мета візиту:</label>
+                <select id="visitPurpose" name="visitPurpose" required>
+                    <option value="">Виберіть мету</option>
+                    <option value="tourism">Туризм</option>
+                    <option value="business">Бізнес</option>
+                    <option value="study">Навчання</option>
+                    <option value="transit">Транзит</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="cashAmount">Сума готівки:</label>
+                <input type="number" id="cashAmount" name="cashAmount" min="0" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="luggageInfo">Відомості про багаж:</label>
+                <textarea id="luggageInfo" name="luggageInfo" rows="4" required></textarea>
+            </div>
+        </fieldset>
+
+        <div class="form-group">
+            <button type="submit">Надіслати</button>
+            <button type="reset">Очистити</button>
+        </div>
+    </form>
+
+    <script>
+        // Обробник події відправки форми
+        document.getElementById('customsForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Запобігаємо стандартній відправці форми
+            
+            // Збираємо дані з форми
+            const formData = {
+                surname: document.getElementById('surname').value,
+                name: document.getElementById('name').value,
+                patronymic: document.getElementById('patronymic').value,
+                nativeLanguage: document.getElementById('nativeLanguage').value,
+                visitPurpose: document.getElementById('visitPurpose').value,
+                cashAmount: document.getElementById('cashAmount').value,
+                luggageInfo: document.getElementById('luggageInfo').value
+            };
+
+            try {
+                // Відправляємо POST-запит на сервер
+                const response = await fetch('http://localhost:3000/api/declaration', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                // Перевіряємо, чи запит успішний
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Повідомляємо про успіх і очищаємо форму
+                alert('Декларацію успішно збережено!');
+                document.getElementById('customsForm').reset();
+            } catch (error) {
+                // Обробка помилок
+                console.error('Деталі помилки:', error);
+                alert(`Сталася помилка при відправці декларації: ${error.message}`);
+            }
+        });
+    </script>
+</body>
+</html>
